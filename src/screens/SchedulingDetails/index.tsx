@@ -1,4 +1,6 @@
 import React from 'react';
+import { Feather } from '@expo/vector-icons';
+import { useTheme } from 'styled-components';
 
 import { Accessory } from '../../components/Accessory';
 import { BackButton } from '../../components/BackButton';
@@ -24,12 +26,24 @@ import {
     Period,
     Value,
     Accessories,
-    About,
-    Footer
+    Footer,
+    RentDetails,
+    RentDateDetails,
+    CalendarIconContainer,
+    RentDateControl,
+    RentDateText,
+    RentDate,
+    RentValueDetails,
+    RentTax,
+    RentTaxTitle,
+    RentTaxValue,
+    RentTaxTotal,
 } from './styles'
 import { Button } from '../../components/Button';
 
-export function CarDetails() {
+export function SchedulingDetails() {
+    const theme = useTheme();
+
     return (
         <Container>
             <Header>
@@ -87,13 +101,55 @@ export function CarDetails() {
 
                 </Accessories>
 
-                <About>
-                    Este é automóvel desportivo. Surgiu do lendário touro de lide indultado na praça Real Maestranza de Sevilla. É um belíssimo carro para quem gosta de acelerar.
-                </About>
+                <RentDetails>
+                    <RentDateDetails>
+                    <CalendarIconContainer>
+                        <Feather 
+                            name='calendar'
+                            color={theme.colors.background_secondary}
+                            size={24}
+                        />
+                    </CalendarIconContainer>
+                        <RentDateControl>
+                            <RentDateText>
+                                DE
+                            </RentDateText>
+                            <RentDate>
+                                18/09/2021
+                            </RentDate>
+                        </RentDateControl>
+                        <Feather 
+                            name='chevron-right' 
+                            color={theme.colors.text_detail}
+                            size={24}
+                        />
+                        <RentDateControl>
+                            <RentDateText>
+                                ATÉ
+                            </RentDateText>
+                            <RentDate>
+                                20/09/2021
+                            </RentDate>
+                        </RentDateControl>
+                    </RentDateDetails>
+
+                    <RentValueDetails>
+                        <RentTax>
+                            <RentTaxTitle>TOTAL</RentTaxTitle>
+                            <RentTaxValue>R$ 580 x3 diárias</RentTaxValue>
+                        </RentTax>
+
+                        <RentTaxTotal>R$ 2.900</RentTaxTotal>
+                    </RentValueDetails>
+                </RentDetails>
+
             </Content>
 
             <Footer>
-                <Button title='Escolher período do aluguel' />
+                <Button 
+                    title='Alugar agora'  
+                    color={theme.colors.success}
+                />
             </Footer>
         </Container>
     )

@@ -14,9 +14,9 @@ import {
 } from '@expo-google-fonts/archivo';
 
 
-import { CarDetails } from './src/screens/CarDetails';
 import { ThemeProvider } from 'styled-components';
 import theme from './src/styles/theme';
+import { SchedulingConfirmation } from './src/screens/SchedulingConfirmation';
 
 
 export default function App() {
@@ -34,7 +34,7 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <CarDetails />
+      <SchedulingConfirmation />
     </ThemeProvider>
   );
 }
