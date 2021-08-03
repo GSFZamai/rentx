@@ -1,0 +1,85 @@
+import { ScrollView } from 'react-native-gesture-handler';
+import { getStatusBarHeight } from 'react-native-iphone-x-helper';
+import { RFValue } from 'react-native-responsive-fontsize';
+import styled from 'styled-components/native';
+
+export const Container = styled.View`
+    flex: 1;
+    background-color: ${({ theme }) => theme.colors.background_secondary};
+`;
+export const Header = styled.View`
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    position: absolute;
+    
+    margin-top: ${getStatusBarHeight() + 18}px;
+    margin-left: 24px;
+`;
+
+export const CarSliderContainer = styled.View`
+    margin-top: ${getStatusBarHeight() + 32}px;
+`;
+
+export const Content = styled(ScrollView).attrs({
+    contentContainerStyle: {
+        padding: 24,
+        alignItems: 'center'
+    },
+    showVerticalScrollBar: false
+})``;
+
+export const Description = styled.View`
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+`;
+export const Details = styled.View`
+    
+`;
+
+export const Brand = styled.Text`
+    font-family: ${({ theme }) => theme.fonts.secondady_500};
+    color: ${({ theme }) => theme.colors.text_detail};
+    font-size: ${RFValue(10)}px;
+`;
+
+export const Model = styled.Text`
+    font-family: ${({theme}) => theme.fonts.secondady_500};
+    color: ${({theme}) => theme.colors.title};
+    font-size: ${RFValue(25)}px;
+`;
+
+export const Rent = styled.View`
+`;
+
+export const Period = styled.Text`
+    font-family: ${({ theme }) => theme.fonts.secondady_500};
+    color: ${({ theme }) => theme.colors.text_detail};
+    font-size: ${RFValue(10)}px;
+`;
+
+export const Value = styled.Text`
+    font-family: ${({theme}) => theme.fonts.secondady_500};
+    color: ${({theme}) => theme.colors.main};
+    font-size: ${RFValue(25)}px;
+`;
+
+export const Accessories = styled.View`
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+`;
+
+export const About = styled.Text`
+    font-family: ${({theme}) => theme.fonts.primary_400};
+    color: ${({theme}) => theme.colors.text};
+    font-size: ${RFValue(15)}px;
+    line-height: ${RFValue(25)}px;
+    text-align: justify;
+`;
