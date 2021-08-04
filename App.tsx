@@ -16,7 +16,7 @@ import {
 
 import { ThemeProvider } from 'styled-components';
 import theme from './src/styles/theme';
-import { SchedulingConfirmation } from './src/screens/SchedulingConfirmation';
+import { Routes } from './src/routes';
 
 
 export default function App() {
@@ -34,7 +34,7 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <SchedulingConfirmation />
+      <Routes />
     </ThemeProvider>
   );
 }

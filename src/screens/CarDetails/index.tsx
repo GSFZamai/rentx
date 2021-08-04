@@ -29,7 +29,12 @@ import {
 } from './styles'
 import { Button } from '../../components/Button';
 
-export function CarDetails() {
+export function CarDetails({navigation}) {
+
+    function handleButtonClick() {
+        navigation.navigate('Scheduling')
+    }
+
     return (
         <Container>
             <Header>
@@ -93,7 +98,7 @@ export function CarDetails() {
             </Content>
 
             <Footer>
-                <Button title='Escolher período do aluguel' />
+                <Button title='Escolher período do aluguel' onPress={handleButtonClick} />
             </Footer>
         </Container>
     )

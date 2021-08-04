@@ -41,8 +41,12 @@ import {
 } from './styles'
 import { Button } from '../../components/Button';
 
-export function SchedulingDetails() {
+export function SchedulingDetails({navigation}) {
     const theme = useTheme();
+
+    function handleButtonClick() {
+        navigation.navigate('SchedulingConfirmation')
+    }
 
     return (
         <Container>
@@ -149,6 +153,7 @@ export function SchedulingDetails() {
                 <Button 
                     title='Alugar agora'  
                     color={theme.colors.success}
+                    onPress={handleButtonClick}
                 />
             </Footer>
         </Container>

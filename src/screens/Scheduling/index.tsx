@@ -19,8 +19,13 @@ import {
 import { Button } from '../../components/Button';
 import { Calendar } from '../../components/Calendar';
 
-export function Scheduling() {
+export function Scheduling({navigation}) {
     const theme = useTheme();
+
+    function handleButtonClick() {
+        navigation.navigate('SchedulingDetails')
+    }
+
     return (
         <Container>
             <StatusBar
@@ -69,6 +74,7 @@ export function Scheduling() {
             <Footer>
                 <Button 
                     title="Confirmar"
+                    onPress={handleButtonClick}
                 />
             </Footer>
 

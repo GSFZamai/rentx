@@ -15,7 +15,12 @@ import {
 } from './styles';
 import { ConfirmationButton } from '../../components/ConfimationButton';
 
-export function SchedulingConfirmation() {
+export function SchedulingConfirmation({navigation}) {
+
+    function handleButtonClick() {
+        navigation.navigate('Home');
+    }
+
     return (
         <Container>
             <StatusBar
@@ -44,7 +49,10 @@ export function SchedulingConfirmation() {
             </Content>
 
             <Footer>
-                <ConfirmationButton title="Ok"/>
+                <ConfirmationButton 
+                    title="Ok"
+                    onPress={handleButtonClick}
+                />
             </Footer>
 
         </Container>
