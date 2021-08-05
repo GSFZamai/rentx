@@ -1,20 +1,44 @@
 import React from 'react';
-import {Calendar as CustomCalendar, LocaleConfig} from 'react-native-calendars';
+import {
+    Calendar as CustomCalendar, 
+    DateCallbackHandler,
+    LocaleConfig,
+} from 'react-native-calendars';
 import {Feather} from '@expo/vector-icons';
-import {useTheme} from 'styled-components'
+import {useTheme} from 'styled-components';
 
-LocaleConfig.locales['pt-br'] = {
-    monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
-    monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-    dayNames: ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'],
-    dayNamesShort: ['SEG', 'TER', 'QUA', 'QUI', 'SEX'],
-    today: 'Hoje'
-}
+import { ptBr } from './localeConfig'
 
+LocaleConfig.locales['pt-br'] = ptBr;
 LocaleConfig.defaultLocale = 'pt-br';
 
-export function Calendar() {
+interface DayProps {
+    dateString: string;
+    day: number;
+    month: number;
+    year: number;
+    timestamp: number;
+}
+
+interface MarkedDateProps {
+    [date: string]: {
+        color: string;
+        textColor: string;
+        disabled?: boolean;
+        disableTouchEvent?: boolean;
+    }
+    
+}
+
+
+interface CalendarProps {
+    markedDates: MarkedDateProps;
+    onDayPress: DateCallbackHandler;
+}
+
+export function Calendar({markedDates, onDayPress}: CalendarProps) {
     const theme = useTheme();
+
     return(
         <CustomCalendar 
             minDate={new Date()}
@@ -25,9 +49,9 @@ export function Calendar() {
                     color={theme.colors.text}
                 />
             }
-
             firstDay={1}
-
+            markingType="period"
+            onDayPress={onDayPress}
             headerStyle={{
                 backgroundColor: theme.colors.background_secondary,
                 borderBottomWidth: 0.5,
@@ -35,7 +59,7 @@ export function Calendar() {
                 paddingBottom: 20,
                 marginBottom: 20
             }}
-
+            markedDates={markedDates}
             theme={{
                 textDayFontFamily: theme.fonts.primary_400,
                 textDayHeaderFontFamily: theme.fonts.primary_500,
@@ -49,4 +73,9 @@ export function Calendar() {
             }}
         />
     )
+}
+
+export {
+    MarkedDateProps,
+    DayProps
 }

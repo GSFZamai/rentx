@@ -1,31 +1,49 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { ActivityIndicator } from 'react-native';
+import { useTheme } from 'styled-components';
+
+import { api } from '../../services/api';
 import Logo from '../../assets/logo.svg';
 import { CarCard } from '../../components/CarCard';
+import { CarDTO } from '../../dtos/CarDTO';
 
 import {
     Container,
     Header,
     HeaderContent,
     Title,
-    CarList
+    CarList,
+    ActivityIndicatorContainer
 } from './styles';
 
-export function Home({navigation}) {
-    const car = {
-        brand: 'Audi',
-        model: 'RS 5 Coupé',
-        rent: {
-            period: 'Ao dia',
-            value: 120,
-        },
-        thumbnail: 'https://platform.cstatic-images.com/large/in/v2/stock_photos/ff5a98a2-fd1e-4585-84a9-d91a5947d7d0/61f4cdfb-46ba-4ae9-8c08-3414e91094af.png',
+export function Home({ navigation }) {
+    const [carList, setCarList] = useState<CarDTO[]>([]);
+    const [loadingCars, setLoadingCars] = useState(true);
+    
+    const theme = useTheme();
+
+
+    function handleCardClick(car: CarDTO) {
+        navigation.navigate('CarDetails', {car: car});
     }
 
-    function handleCardClick() {
-        navigation.navigate('CarDetails');
-    }
+    useEffect(() => {
+        async function getData() {
+            try {
+                const { data } = await api.get('/cars');
+                setCarList(data);
+                console.log(data)
+            } catch (error) {
+                console.log(error)
+            } finally {
+                setLoadingCars(false);
+            }
+        }
+
+        getData();
+    }, [])
 
     return (
         <Container>
@@ -43,14 +61,27 @@ export function Home({navigation}) {
                     <Title>Total de 12 carros</Title>
                 </HeaderContent>
             </Header>
-            <CarList
-                data={[1, 2, 3, 4, 5, 6, 7]}
-                keyExtractor={item => String(item)}
-                renderItem={item =>
-                    <CarCard carDetails={car} onPress={handleCardClick}/>
-                }
-                
-            />
+
+            {
+                loadingCars ?
+                <ActivityIndicatorContainer>
+                    <ActivityIndicator 
+                        size='large'
+                        color={theme.colors.main}
+                    />
+                </ActivityIndicatorContainer>
+
+                :
+
+                    <CarList
+                        data={carList}
+                        keyExtractor={(item: CarDTO) => item.id}
+                        renderItem={({ item }) =>
+                            <CarCard carDetails={item} onPress={() => handleCardClick(item)} />
+                        }
+
+                    />
+            }
         </Container>
     )
 }

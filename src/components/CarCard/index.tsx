@@ -14,15 +14,17 @@ import {
     CarImage
 } from './styles';
 import GasLogo from '../../assets/gasoline.svg';
+import { getAccessoryIcon } from '../../utils/getAccessoryIcon';
 
 interface CarDetailsProps {
     brand: string;
-    model: string;
+    name: string;
     rent: {
         period: string;
-        value: number;
+        price: number;
     },
     thumbnail: string;
+    fuel_type: string;
 }
 
 interface CarCardProps extends RectButtonProps{
@@ -30,30 +32,33 @@ interface CarCardProps extends RectButtonProps{
 }
 
 export function CarCard({carDetails, ...rest}: CarCardProps) {
+    const FuelType = getAccessoryIcon(carDetails.fuel_type);
+
     return (
         <Container {...rest}>
             <Details>
                 <Brand>{carDetails.brand}</Brand>
-                <Model>{carDetails.model}</Model>
+                <Model>{carDetails.name}</Model>
                 <About>
                     <Rent>
                         <Period>{carDetails.rent.period}</Period>
-                        <Value>R$ {carDetails.rent.value}</Value>
+                        <Value>R$ {carDetails.rent.price}</Value>
                     </Rent>
                     <Type>
-                        <GasLogo />
+                        <FuelType />
                     </Type>
                 </About>
             </Details>
-            <CarImage 
-                source={
-                    { 
-                        uri: carDetails.thumbnail 
-                    }
-                } 
+  
+                <CarImage 
+                    source={
+                        { 
+                            uri: carDetails.thumbnail 
+                        }
+                    } 
 
-                resizeMode='contain'
-            />
+                    resizeMode='contain'
+                />
         </Container>
     )
 }

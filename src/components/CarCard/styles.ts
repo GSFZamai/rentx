@@ -13,7 +13,7 @@ export const Container = styled(RectButton)`
 `;
 
 export const Details = styled.View`
-    margin-right: 42px;
+    
     justify-content: center;
 `;
 
@@ -44,14 +44,17 @@ export const Period = styled.Text`
     color: ${({ theme }) => theme.colors.text_detail};
     font-size: ${RFValue(10)}px;
 `;
+
 export const Value = styled.Text`
     font-family: ${({ theme }) => theme.fonts.secondady_500};
     color: ${({ theme }) => theme.colors.main};
     font-size: ${RFValue(15)}px;
 `;
+
 export const Type = styled.View`
     color: ${({ theme }) => theme.colors.text_detail};
 `;
+
 export const CarImage = styled.Image`
     width: 180px;
     height: 92px;

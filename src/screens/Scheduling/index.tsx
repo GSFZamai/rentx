@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StatusBar } from 'react-native';
 import { useTheme } from 'styled-components';
 
 import { BackButton } from '../../components/BackButton';
+import { Button } from '../../components/Button';
+import { Calendar, DayProps, MarkedDateProps } from '../../components/Calendar';
+
 import ForwardArrowSVG from '../../assets/arrow.svg'
 
 import {
@@ -16,14 +19,33 @@ import {
     Content,
     Footer,
 } from './styles';
-import { Button } from '../../components/Button';
-import { Calendar } from '../../components/Calendar';
+import { generateInterval } from '../../components/Calendar/generateInterval';
 
-export function Scheduling({navigation}) {
+export function Scheduling({ navigation }) {
+    const [lastSelectedDate, setLastSelectedDate] = useState<DayProps>({} as DayProps)
+    const [markedDates, setMarkedDates] = useState<MarkedDateProps>({} as MarkedDateProps)
     const theme = useTheme();
 
     function handleButtonClick() {
         navigation.navigate('SchedulingDetails')
+    }
+
+    function handleBackButtonClick() {
+        navigation.goBack();
+    }
+
+    function handleChangeDate(date: DayProps) {
+        let start = !lastSelectedDate.timestamp ? date : lastSelectedDate;
+        let end = date;
+
+        if (start.timestamp > end.timestamp) {
+            start = end;
+            end = start;
+        }
+
+        setLastSelectedDate(end);
+        const interval = generateInterval(start, end);
+        setMarkedDates(interval);
     }
 
     return (
@@ -36,6 +58,7 @@ export function Scheduling({navigation}) {
             <Header>
                 <BackButton
                     color={theme.colors.shape}
+                    onPress={handleBackButtonClick}
                 />
                 <Title>
                     Escolha uma {'\n'}
@@ -52,7 +75,7 @@ export function Scheduling({navigation}) {
                             03/08/2021
                         </DateSelectInput>
                     </DateSelectController>
-                    
+
                     <ForwardArrowSVG />
 
                     <DateSelectController>
@@ -68,11 +91,14 @@ export function Scheduling({navigation}) {
             </Header>
 
             <Content>
-                <Calendar />
+                <Calendar
+                    markedDates={markedDates}
+                    onDayPress={(date: DayProps) => handleChangeDate(date)}
+                />
             </Content>
 
             <Footer>
-                <Button 
+                <Button
                     title="Confirmar"
                     onPress={handleButtonClick}
                 />
