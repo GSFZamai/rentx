@@ -74,7 +74,6 @@ export function Home() {
 
     function handleMyCarsButton() {
         navigation.navigate('MyCars');
-        console.log('Clicou!');
     }
 
     useEffect(() => {
@@ -82,7 +81,6 @@ export function Home() {
             try {
                 const { data } = await api.get('/cars');
                 setCarList(data);
-                console.log(data)
             } catch (error) {
                 console.log(error)
             } finally {
@@ -105,6 +103,7 @@ export function Home() {
                 barStyle="light-content"
                 backgroundColor="transparent"
                 translucent
+                hidden={false}
             />
             <Header>
                 <HeaderContent>
@@ -123,7 +122,7 @@ export function Home() {
             {
                 loadingCars ?
                     <ActivityIndicatorContainer>
-                        <LoadingAnimation />
+                        <LoadingAnimation animation='loadingCar' />
                     </ActivityIndicatorContainer>
 
                     :

@@ -35,7 +35,6 @@ import {
     Footer
 } from './styles'
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
-import { StackNavigationProp } from '@react-navigation/stack';
 
 interface CarProps {
     car: CarDTO
@@ -96,7 +95,7 @@ export function CarDetails() {
                 style={
                     {
                         paddingHorizontal: 24,
-                        paddingTop: getStatusBarHeight() + 160
+                        paddingTop: getStatusBarHeight() + 160,
                     }
                 }
                 showsVerticalScrollIndicator={false}

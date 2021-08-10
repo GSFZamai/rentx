@@ -14,6 +14,7 @@ interface ButtonProps extends RectButtonProps {
     onPress: () => void;
     enabled?: boolean;
     loading?: boolean;
+    light?: boolean;
 }
 
 export function Button({
@@ -21,6 +22,7 @@ export function Button({
     title,
     color,
     enabled = true,
+    light = false,
     loading = false,
     ...rest
 }: ButtonProps) {
@@ -43,7 +45,7 @@ export function Button({
 
                     :
 
-                    <Title> {title} </Title>
+                    <Title light={light}> {title} </Title>
             }
         </Container>
     )

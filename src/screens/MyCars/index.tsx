@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Alert, StatusBar, ActivityIndicator, FlatList } from 'react-native';
+import { Alert, StatusBar, FlatList } from 'react-native';
 import { useTheme } from 'styled-components';
 import { AntDesign } from '@expo/vector-icons';
 
@@ -91,7 +91,9 @@ export function MyCars() {
                     isloading ?
 
 
-                            <LoadingAnimation />
+                            <LoadingAnimation 
+                                animation='loadingCar2'
+                            />
 
                         :
 

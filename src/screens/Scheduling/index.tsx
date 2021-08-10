@@ -165,7 +165,7 @@ export function Scheduling() {
 
             {
                 loadingDates ?
-                <LoadingAnimation />
+                <LoadingAnimation animation='loadingCalendar' />
                 :
                 <>
                     <Content>
