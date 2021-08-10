@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { StatusBar } from 'react-native';
+import { StatusBar, Alert } from 'react-native';
 import { useTheme } from 'styled-components';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { format } from 'date-fns';
 
 import { BackButton } from '../../components/BackButton';
 import { Button } from '../../components/Button';
 import { Calendar, DayProps, MarkedDateProps } from '../../components/Calendar';
+import { generateInterval } from '../../components/Calendar/generateInterval';
+import { CarDTO } from '../../dtos/CarDTO';
+import { NavigationProps } from '../../dtos/navigation';
+import { getPlatformDates } from '../../utils/getPlatformDates';
 
 import ForwardArrowSVG from '../../assets/arrow.svg'
 
@@ -19,15 +25,42 @@ import {
     Content,
     Footer,
 } from './styles';
-import { generateInterval } from '../../components/Calendar/generateInterval';
+import { useEffect } from 'react';
+import { api } from '../../services/api';
+import { LoadingAnimation } from '../../components/LoadingAnimation';
 
-export function Scheduling({ navigation }) {
-    const [lastSelectedDate, setLastSelectedDate] = useState<DayProps>({} as DayProps)
-    const [markedDates, setMarkedDates] = useState<MarkedDateProps>({} as MarkedDateProps)
+interface CarProps {
+    car: CarDTO;
+}
+
+interface PeriodDatesProps {
+    start: string;
+    end: string;
+}
+
+export function Scheduling() {
+    const [loadingDates, setloadingDates] = useState(true);
+    const navigation = useNavigation<NavigationProps>()
+    const [lastSelectedDate, setLastSelectedDate] = useState<DayProps>({} as DayProps);
+    const [unavaibleDates, setUnavaibleDates] = useState<MarkedDateProps>({} as MarkedDateProps);
+    const [markedDates, setMarkedDates] = useState<MarkedDateProps>({} as MarkedDateProps);
+    const [periodDates, setPeriodDates] = useState<PeriodDatesProps>({} as PeriodDatesProps);
     const theme = useTheme();
+    const route = useRoute();
+    const { car } = route.params as CarProps;
 
     function handleButtonClick() {
-        navigation.navigate('SchedulingDetails')
+
+        if(!periodDates.end || !periodDates.start) {
+            Alert.alert('Escolha um período para avançar');
+        }else {
+            navigation.navigate('SchedulingDetails', {
+                car,
+                dates: Object.keys(markedDates)
+            })
+        }
+
+
     }
 
     function handleBackButtonClick() {
@@ -46,7 +79,46 @@ export function Scheduling({ navigation }) {
         setLastSelectedDate(end);
         const interval = generateInterval(start, end);
         setMarkedDates(interval);
+        const firstDate = Object.keys(interval)[0];
+        const lastDate = Object.keys(interval)[Object.keys(interval).length - 1];
+
+        setPeriodDates({
+            start: format(getPlatformDates(new Date(firstDate)), 'dd/MM/yyyy'),
+            end: format(getPlatformDates(new Date(lastDate)), 'dd/MM/yyyy')
+        });
     }
+
+    useEffect(() => {
+        async function getScheduleBycar() {
+
+            try {
+                const response = await api.get(`/schedules_bycars/${car.id}`);
+                const unavaibleMarkedDates = {} as MarkedDateProps;
+                const data = response.data.unavailable_dates;
+    
+                if (data.length > 0) {
+                    data.forEach((date: string) => {
+                        unavaibleMarkedDates[date] = {
+                            marked: true,
+                            dotColor: 'red',
+                            disableTouchEvent: true,
+                            textColor: theme.colors.main
+                        };    
+                    });
+        
+                    setUnavaibleDates(unavaibleMarkedDates);
+                }
+            }catch (error){
+                console.log(error);
+            }finally {
+                setloadingDates(false);
+            }
+
+
+        }
+
+        getScheduleBycar();
+    }, []);
 
     return (
         <Container>
@@ -71,8 +143,8 @@ export function Scheduling({ navigation }) {
                         <DateSelectText>
                             DE
                         </DateSelectText>
-                        <DateSelectInput selected={true}>
-                            03/08/2021
+                        <DateSelectInput selected={!!periodDates.start}>
+                            {periodDates.start}
                         </DateSelectInput>
                     </DateSelectController>
 
@@ -82,7 +154,8 @@ export function Scheduling({ navigation }) {
                         <DateSelectText>
                             ATÉ
                         </DateSelectText>
-                        <DateSelectInput selected={false}>
+                        <DateSelectInput selected={!!periodDates.end}>
+                            {periodDates.end}
                         </DateSelectInput>
                     </DateSelectController>
 
@@ -90,19 +163,28 @@ export function Scheduling({ navigation }) {
                 </DateSelectContainer>
             </Header>
 
-            <Content>
-                <Calendar
-                    markedDates={markedDates}
-                    onDayPress={(date: DayProps) => handleChangeDate(date)}
-                />
-            </Content>
+            {
+                loadingDates ?
+                <LoadingAnimation />
+                :
+                <>
+                    <Content>
+                        <Calendar
+                            markedDates={{...unavaibleDates, ...markedDates}}
+                            onDayPress={(date: DayProps) => handleChangeDate(date)}
+                        />
+                    </Content>
 
-            <Footer>
-                <Button
-                    title="Confirmar"
-                    onPress={handleButtonClick}
-                />
-            </Footer>
+                    <Footer>
+                        <Button
+                            enabled={!!periodDates.end}
+                            title="Confirmar"
+                            onPress={handleButtonClick}
+                        />
+                    </Footer>
+                </>
+
+            }
 
         </Container>
     )

@@ -22,14 +22,6 @@ export const CarSliderContainer = styled.View`
     margin-top: ${getStatusBarHeight() + 32}px;
 `;
 
-export const Content = styled(ScrollView).attrs({
-    contentContainerStyle: {
-        padding: 24,
-        alignItems: 'center'
-    },
-    showVerticalScrollBar: false
-})``;
-
 export const Description = styled.View`
     width: 100%;
     flex-direction: row;

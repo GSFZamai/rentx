@@ -12,8 +12,7 @@ export const Container = styled(RectButton)`
     margin-bottom: 16px;
 `;
 
-export const Details = styled.View`
-    
+export const Details = styled.View`    
     justify-content: center;
 `;
 
@@ -23,11 +22,13 @@ export const Brand = styled.Text`
     color: ${({ theme }) => theme.colors.text_detail};
     font-size: ${RFValue(10)}px;
 `;
+
 export const Model = styled.Text`
     font-family: ${({ theme }) => theme.fonts.secondady_500};
     color: ${({ theme }) => theme.colors.title};
     font-size: ${RFValue(15)}px;
 `;
+
 export const About = styled.View`
     flex-direction: row;
     align-items: center;

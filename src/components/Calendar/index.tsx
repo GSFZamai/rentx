@@ -22,10 +22,13 @@ interface DayProps {
 
 interface MarkedDateProps {
     [date: string]: {
-        color: string;
-        textColor: string;
-        disabled?: boolean;
-        disableTouchEvent?: boolean;
+        marked?: boolean;
+        dotColor?: string;
+        color?: string;
+        textColor?: string;
+        startingDay?: boolean;
+        endingDay?: boolean;
+        disableTouchEvent?: boolean
     }
     
 }

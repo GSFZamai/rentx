@@ -14,6 +14,8 @@ export function generateInterval(initialDate: DayProps, finalDate: DayProps) {
             [date]: {
                 color: initialDate.dateString === date || finalDate.dateString === date 
                 ? theme.colors.main : theme.colors.main_light,
+                startingDay: initialDate.dateString === date,
+                endingDay: finalDate.dateString === date,
                 textColor: initialDate.dateString === date || finalDate.dateString === date 
                 ? theme.colors.background_secondary : theme.colors.main,
             }

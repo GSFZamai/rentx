@@ -14,9 +14,11 @@ import {
     Footer
 } from './styles';
 import { ConfirmationButton } from '../../components/ConfimationButton';
+import { useNavigation } from '@react-navigation/native';
+import { NavigationProps } from '../../dtos/navigation';
 
-export function SchedulingConfirmation({navigation}) {
-
+export function SchedulingConfirmation() {
+    const navigation = useNavigation<NavigationProps>()
     function handleButtonClick() {
         navigation.navigate('Home');
     }
