@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Alert, StatusBar, FlatList } from 'react-native';
+import { Alert, StatusBar, FlatList, } from 'react-native';
 import { useTheme } from 'styled-components';
 import { AntDesign } from '@expo/vector-icons';
+import { parseISO, format } from 'date-fns';
+import { useIsFocused } from '@react-navigation/core';
 
 import { BackButton } from '../../components/BackButton';
 import { CarCard } from '../../components/CarCard';
-import { CarDTO } from '../../dtos/CarDTO';
+import { Car as CarModel } from '../../database/model/Car';
 import { api } from '../../services/api';
 
 import {
@@ -25,19 +27,21 @@ import {
 } from './styles';
 import { useNavigation } from '@react-navigation/native';
 import { LoadingAnimation } from '../../components/LoadingAnimation';
+import { getPlatformDates } from '../../utils/getPlatformDates';
 
 interface SchedulesProps {
-    car: CarDTO,
-    user_id: string;
+    car: CarModel,
     id: number;
-    endDate: string;
-    startDate: string;
+    end_date: string;
+    start_date: string;
 }
+
 
 export function MyCars() {
     const navigation = useNavigation();
     const [userRentals, setUserRentals] = useState<SchedulesProps[]>([]);
     const [isloading, setIsLoading] = useState(true);
+    const isFocused = useIsFocused();
 
     const theme = useTheme();
 
@@ -48,10 +52,16 @@ export function MyCars() {
     useEffect(() => {
         async function fetchCars() {
             try {
-                const rendDates = await api.get('/schedules_byuser?user_id=2');
-                const userRentDate = rendDates.data;
+                const rentDates = await api.get('/rentals');
+                const userRentDate = rentDates.data.map((data: SchedulesProps) => {
+                    return {
+                        car: data.car,
+                        id: data.id,
+                        start_date: format(getPlatformDates(parseISO(data.start_date)), 'dd/MM/yyyy'),
+                        end_date: format(getPlatformDates(parseISO(data.end_date)), 'dd/MM/yyyy'),
+                    }
+                });
                 setUserRentals(userRentDate);
-                console.log(userRentDate);
             } catch (error) {
                 console.log(error);
                 Alert.alert('Não foi possível carregar seus agendamentos');
@@ -62,7 +72,7 @@ export function MyCars() {
         }
 
         fetchCars();
-    }, []);
+    }, [isFocused]);
 
     return (
         <Container>
@@ -115,7 +125,7 @@ export function MyCars() {
                                                 Período
                                             </CarFooterTitle>
                                             <CarFooterPeriod>
-                                                <CarFooterDate>{item.startDate}</CarFooterDate>
+                                                <CarFooterDate>{item.start_date}</CarFooterDate>
                                                 <AntDesign 
                                                     name='arrowright'
                                                     size={20}
@@ -123,7 +133,7 @@ export function MyCars() {
                                                     style={{ marginHorizontal: 10 }}
 
                                                 />
-                                                <CarFooterDate>{item.endDate}</CarFooterDate>
+                                                <CarFooterDate>{item.end_date}</CarFooterDate>
                                             </CarFooterPeriod>
                                         </CarFooter>
                                     </CarWrapper>

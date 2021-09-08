@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBar, Alert } from 'react-native';
 import { useTheme } from 'styled-components';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { format } from 'date-fns';
+import { format, eachDayOfInterval } from 'date-fns';
 
 import { BackButton } from '../../components/BackButton';
 import { Button } from '../../components/Button';
 import { Calendar, DayProps, MarkedDateProps } from '../../components/Calendar';
 import { generateInterval } from '../../components/Calendar/generateInterval';
 import { CarDTO } from '../../dtos/CarDTO';
-import { NavigationProps } from '../../dtos/navigation';
+import { Car as CarModel } from '../../database/model/Car';
 import { getPlatformDates } from '../../utils/getPlatformDates';
 
 import ForwardArrowSVG from '../../assets/arrow.svg'
@@ -25,12 +25,11 @@ import {
     Content,
     Footer,
 } from './styles';
-import { useEffect } from 'react';
-import { api } from '../../services/api';
 import { LoadingAnimation } from '../../components/LoadingAnimation';
+import { api } from '../../services/api';
 
 interface CarProps {
-    car: CarDTO;
+    car: CarModel;
 }
 
 interface PeriodDatesProps {
@@ -39,8 +38,8 @@ interface PeriodDatesProps {
 }
 
 export function Scheduling() {
-    const [loadingDates, setloadingDates] = useState(true);
-    const navigation = useNavigation<NavigationProps>()
+    const [loadingDates, setloadingDates] = useState(false);
+    const navigation = useNavigation()
     const [lastSelectedDate, setLastSelectedDate] = useState<DayProps>({} as DayProps);
     const [unavaibleDates, setUnavaibleDates] = useState<MarkedDateProps>({} as MarkedDateProps);
     const [markedDates, setMarkedDates] = useState<MarkedDateProps>({} as MarkedDateProps);
@@ -51,9 +50,9 @@ export function Scheduling() {
 
     function handleButtonClick() {
 
-        if(!periodDates.end || !periodDates.start) {
+        if (!periodDates.end || !periodDates.start) {
             Alert.alert('Escolha um período para avançar');
-        }else {
+        } else {
             navigation.navigate('SchedulingDetails', {
                 car,
                 dates: Object.keys(markedDates)
@@ -70,7 +69,7 @@ export function Scheduling() {
     function handleChangeDate(date: DayProps) {
         let start = !lastSelectedDate.timestamp ? date : lastSelectedDate;
         let end = date;
-
+        console.log(lastSelectedDate);
         if (start.timestamp > end.timestamp) {
             start = end;
             end = start;
@@ -90,31 +89,48 @@ export function Scheduling() {
 
     useEffect(() => {
         async function getScheduleBycar() {
-
+            let reservedInterval: MarkedDateProps = {}
             try {
-                const response = await api.get(`/schedules_bycars/${car.id}`);
-                const unavaibleMarkedDates = {} as MarkedDateProps;
-                const data = response.data.unavailable_dates;
-    
-                if (data.length > 0) {
-                    data.forEach((date: string) => {
-                        unavaibleMarkedDates[date] = {
-                            marked: true,
-                            dotColor: 'red',
-                            disableTouchEvent: true,
-                            textColor: theme.colors.main
-                        };    
-                    });
-        
-                    setUnavaibleDates(unavaibleMarkedDates);
+                interface CarDates {
+                    id: string;
+                    car_id: string;
+                    start_date: string;
+                    end_date: string;
                 }
-            }catch (error){
+                const response = await api.get(`/rentals/`);
+                const rentalInfo: CarDates[] = response.data;
+
+                const currentCarRentals: CarDates[] = rentalInfo.filter(rental => {
+                    return rental.car_id === car.id;
+                });
+
+                currentCarRentals.forEach(rental => {
+                    const interval = eachDayOfInterval({ start: new Date(rental.start_date).getTime(), end: new Date(rental.end_date).getTime() })
+
+                    interval.forEach(rentalDate => {
+                        const date = format(getPlatformDates(rentalDate), 'yyyy-MM-dd');
+                        reservedInterval = {
+                            ...reservedInterval,
+                            [date]: {
+                                marked: true,
+                                dotColor: theme.colors.main,
+                                color: theme.colors.shape,
+                                textColor: theme.colors.main,
+                                startingDay: format(getPlatformDates(interval[0]), 'yyyy-MM-dd') === date,
+                                endingDay: format(getPlatformDates(interval[interval.length - 1]), 'yyyy-MM-dd') === date,
+                                disableTouchEvent: true
+                            }
+                        }
+                    })
+
+                    setUnavaibleDates(reservedInterval);
+                })
+
+            } catch (error) {
                 console.log(error);
-            }finally {
+            } finally {
                 setloadingDates(false);
             }
-
-
         }
 
         getScheduleBycar();
@@ -165,24 +181,24 @@ export function Scheduling() {
 
             {
                 loadingDates ?
-                <LoadingAnimation animation='loadingCalendar' />
-                :
-                <>
-                    <Content>
-                        <Calendar
-                            markedDates={{...unavaibleDates, ...markedDates}}
-                            onDayPress={(date: DayProps) => handleChangeDate(date)}
-                        />
-                    </Content>
+                    <LoadingAnimation animation='loadingCalendar' />
+                    :
+                    <>
+                        <Content>
+                            <Calendar
+                                markedDates={{ ...unavaibleDates, ...markedDates }}
+                                onDayPress={(date: DayProps) => handleChangeDate(date)}
+                            />
+                        </Content>
 
-                    <Footer>
-                        <Button
-                            enabled={!!periodDates.end}
-                            title="Confirmar"
-                            onPress={handleButtonClick}
-                        />
-                    </Footer>
-                </>
+                        <Footer>
+                            <Button
+                                enabled={!!periodDates.end}
+                                title="Confirmar"
+                                onPress={handleButtonClick}
+                            />
+                        </Footer>
+                    </>
 
             }
 

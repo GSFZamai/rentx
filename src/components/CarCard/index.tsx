@@ -1,5 +1,9 @@
 import React from 'react';
 import { RectButtonProps } from 'react-native-gesture-handler';
+import { useNetInfo } from '@react-native-community/netinfo';
+
+import { getAccessoryIcon } from '../../utils/getAccessoryIcon';
+import { Car as CarModel } from '../../database/model/Car';
 
 import {
     Container,
@@ -13,26 +17,14 @@ import {
     Type,
     CarImage
 } from './styles';
-import GasLogo from '../../assets/gasoline.svg';
-import { getAccessoryIcon } from '../../utils/getAccessoryIcon';
-
-interface CarDetailsProps {
-    brand: string;
-    name: string;
-    rent: {
-        period: string;
-        price: number;
-    },
-    thumbnail: string;
-    fuel_type: string;
-}
 
 interface CarCardProps extends RectButtonProps{
-    carDetails: CarDetailsProps;
+    carDetails: CarModel;
 }
 
 export function CarCard({carDetails, ...rest}: CarCardProps) {
     const FuelType = getAccessoryIcon(carDetails.fuel_type);
+    const netInfo = useNetInfo();
 
     return (
         <Container {...rest}>
@@ -41,8 +33,12 @@ export function CarCard({carDetails, ...rest}: CarCardProps) {
                 <Model>{carDetails.name}</Model>
                 <About>
                     <Rent>
-                        <Period>{carDetails.rent.period}</Period>
-                        <Value>R$ {carDetails.rent.price}</Value>
+                        <Period>{carDetails.period}</Period>
+                        <Value>R$ {
+                            netInfo.isConnected === true
+                            ? carDetails.price
+                            : '...'
+                        }</Value>
                     </Rent>
                     <Type>
                         <FuelType />

@@ -6,6 +6,6 @@ interface ParamsProps {
 }
 
 export interface NavigationProps {
-    navigate: (screen: string, params?: ParamsProps) => void;
+    navigate: (screen: string, params?: {}) => void;
     goBack: () => void;
 }

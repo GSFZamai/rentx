@@ -1,6 +1,8 @@
 import React from 'react';
 import { StatusBar } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
+import { ConfirmationButton } from '../../components/ConfimationButton';
 import LogoSVG from '../../assets/logo_background_gray.svg'
 import DoneSVG from '../../assets/done.svg'
 
@@ -13,14 +15,19 @@ import {
     Message,
     Footer
 } from './styles';
-import { ConfirmationButton } from '../../components/ConfimationButton';
-import { useNavigation } from '@react-navigation/native';
-import { NavigationProps } from '../../dtos/navigation';
 
-export function SchedulingConfirmation() {
-    const navigation = useNavigation<NavigationProps>()
+interface ParamsProps {
+    title: string;
+    message: string;
+    returnTo: string;
+}
+
+export function Confirmation() {
+    const navigation = useNavigation()
+    const route = useRoute();
+    const { title, message, returnTo } = route.params as ParamsProps;
     function handleButtonClick() {
-        navigation.navigate('Home');
+        navigation.navigate(returnTo);
     }
 
     return (
@@ -42,11 +49,9 @@ export function SchedulingConfirmation() {
                         height={80}    
                     />
                 </DoneContainer>
-                <Title>Carro alugado!</Title>
+                <Title>{title}</Title>
                 <Message>
-                    Agora você só precisa ir {'\n'}
-                    até a concessionária da RENTX {'\n'}
-                    pegar o seu automóvel
+                    {message}
                 </Message>
             </Content>
 

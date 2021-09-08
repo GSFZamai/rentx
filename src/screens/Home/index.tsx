@@ -1,24 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar } from 'react-native';
+import { Button, StatusBar, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { StyleSheet } from 'react-native';
-import { useTheme } from 'styled-components';
-import { Ionicons } from '@expo/vector-icons';
-import { PanGestureHandler, RectButton } from 'react-native-gesture-handler';
+import { useNetInfo } from '@react-native-community/netinfo';
+import { synchronize  } from '@nozbe/watermelondb/sync';
 
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    useAnimatedGestureHandler,
-} from 'react-native-reanimated';
-
-
+import { LoadingAnimation } from '../../components/LoadingAnimation';
 import { api } from '../../services/api';
-import Logo from '../../assets/logo.svg';
+import { database } from '../../database';
+import { Car as CarModel } from '../../database/model/Car';
 import { CarCard } from '../../components/CarCard';
-import { CarDTO } from '../../dtos/CarDTO';
-import { NavigationProps } from '../../dtos/navigation';
+import Logo from '../../assets/logo.svg';
 
 import {
     Container,
@@ -28,74 +20,74 @@ import {
     CarList,
     ActivityIndicatorContainer,
 } from './styles';
-import { BackHandler } from 'react-native';
-import { LoadingAnimation } from '../../components/LoadingAnimation';
-
-const AnimatedButton = Animated.createAnimatedComponent(RectButton);
-
 
 export function Home() {
-    const [carList, setCarList] = useState<CarDTO[]>([]);
-    const [loadingCars, setLoadingCars] = useState(true);
-    const theme = useTheme();
-    const navigation = useNavigation<NavigationProps>();
-    const positionY = useSharedValue(0);
-    const positionX = useSharedValue(0);
+    const [carList, setCarList] = useState<CarModel[]>([]);
+    const [loadingCars, setLoadingCars] = useState(false);
+    const navigation = useNavigation();
+    const netInfo = useNetInfo();
 
-    const myCarButtonAnimation = useAnimatedStyle(() => {
-        return {
-            transform: [
-                { translateX: positionX.value },
-                { translateY: positionY.value }
-            ]
-        }
-    })
-
-    const handleDrag = useAnimatedGestureHandler({
-        onStart(_, ctx: any) {
-            ctx.positionX = positionX.value;
-            ctx.positionY = positionY.value;
-        },
-        onActive(event, ctx) {
-            positionX.value = ctx.positionX + event.translationX;
-            positionY.value = ctx.positionY + event.translationY;
-        },
-        onEnd() { }
-    })
-
-
-
-
-
-
-    function handleCardClick(car: CarDTO) {
+    function handleCardClick(car: CarModel) {
         navigation.navigate('CarDetails', { car: car })
     }
 
-    function handleMyCarsButton() {
-        navigation.navigate('MyCars');
+    async function offlineSynchronize() {
+        await synchronize({
+            database,
+            pullChanges: async ({ lastPulledAt }) => {
+                const response = await api
+                .get(`cars/sync/pull?lastPulledVersion=${lastPulledAt || 0}`);
+                const { changes, latestVersion } = response.data;
+                return { changes, timestamp: latestVersion};
+            },
+            pushChanges: async ({ changes }) => {
+                const user = changes.users;
+                console.log("#### TO SERVER ####");
+                console.log(changes);
+                try {
+                    const response = await api.post('/users/sync', user);
+                    console.log(response.status);   
+        
+                }catch(error) {
+                    console.log(error);
+                }
+            },
+
+        })
     }
 
     useEffect(() => {
+        if(netInfo.isConnected === true) {
+            offlineSynchronize();
+        }   
+    }, [netInfo.isConnected]);
+
+    useEffect(() => {
+        let isMounted = true;
+
         async function getData() {
             try {
-                const { data } = await api.get('/cars');
-                setCarList(data);
+                const carCollection = database.get<CarModel>('cars');
+                const cars = await carCollection.query().fetch();
+                if (isMounted) {
+                    setCarList(cars);
+                }
             } catch (error) {
                 console.log(error)
             } finally {
-                setLoadingCars(false);
+                if (isMounted) {
+                    setLoadingCars(false);
+                }
             }
-        }
+        }  
 
         getData();
-    }, [])
+        return () => {
+            isMounted = false;
+        }
+    }, []);
 
-    useEffect(() => {
-        BackHandler.addEventListener('hardwareBackPress', () => {
-            return true;
-        });
-    }, [])
+
 
     return (
         <Container>
@@ -118,7 +110,6 @@ export function Home() {
                     }
                 </HeaderContent>
             </Header>
-
             {
                 loadingCars ?
                     <ActivityIndicatorContainer>
@@ -126,59 +117,18 @@ export function Home() {
                     </ActivityIndicatorContainer>
 
                     :
-                    <>
-                        <CarList
-                            data={carList}
-                            keyExtractor={(item: CarDTO) => item.id}
-                            renderItem={({ item }) =>
-                                <CarCard carDetails={item} onPress={() => handleCardClick(item)} />
-                            }
 
-                        />
-                        <PanGestureHandler onGestureEvent={handleDrag}>
-                            <Animated.View style={
-                                [
-                                    myCarButtonAnimation,
-                                    styled.view,
+                    <CarList
+                        data={carList}
+                        keyExtractor={(item: CarModel) => item.id}
+                        renderItem={({ item }) =>
+                            <CarCard carDetails={item} onPress={() => handleCardClick(item)} />
+                        }
 
-                                ]
-                            }
-                            >
-                                <AnimatedButton
-                                    onPress={handleMyCarsButton}
-                                    style={
-                                        [
-                                            styled.button,
-                                            { backgroundColor: theme.colors.main }
-                                        ]
-                                    }
-                                >
-                                    <Ionicons
-                                        name="ios-car-sport"
-                                        size={32}
-                                        color={theme.colors.background_secondary}
-                                    />
-                                </AnimatedButton>
-                            </Animated.View>
+                    />
 
-                        </PanGestureHandler>
-                    </>
+
             }
         </Container>
     )
 }
-
-const styled = StyleSheet.create({
-    button: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    view: {
-        position: 'absolute',
-        right: 22,
-        bottom: 13,
-    }
-})

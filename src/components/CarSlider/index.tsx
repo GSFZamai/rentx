@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useRef } from 'react';
 import { ViewToken } from 'react-native';
 import { FlatList } from 'react-native';
+import { Bullet } from '../Bullet';
 
 import {
     Container,
@@ -12,7 +13,10 @@ import {
 } from './styles';
 
 interface CarSliderProps {
-    imagesUrl: string[];
+    imagesUrl: {
+        id: string;
+        photo: string;
+    }[];
 }
 
 interface onChangedProps {
@@ -26,7 +30,7 @@ export function CarSlider({ imagesUrl }: CarSliderProps) {
     const itemChange = useRef((info: onChangedProps) => {
         const index = info.viewableItems[0].index;
         console.log(index);
-        setItemOnView(index)
+        setItemOnView(index!)
     });
 
     return (
@@ -35,7 +39,7 @@ export function CarSlider({ imagesUrl }: CarSliderProps) {
             <ImageIndexesContainer>
                 {
                     imagesUrl.map((_, index) => (
-                        <ImageIndex
+                        <Bullet
                             key={index}
                             active={index === itemOnView}
                         />
@@ -45,12 +49,12 @@ export function CarSlider({ imagesUrl }: CarSliderProps) {
 
             <FlatList
                 data={imagesUrl}
-                keyExtractor={key => key}
+                keyExtractor={item => item.id}
                 renderItem={({item, separators}) => {
                     return(
                     <CarImageContainer>
                         <CarImage
-                            source={{ uri: item }}
+                            source={{ uri: item.photo }}
                             resizeMode='contain'
                         />
                     </CarImageContainer>)

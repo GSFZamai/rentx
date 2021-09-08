@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { useNavigation } from '@react-navigation/native';
 import Logo from '../../assets/logo.svg';
 import Brand from '../../assets/brand.svg';
 
@@ -14,14 +15,9 @@ import Animated, {
 import {
     Container,
 } from './styles';
-import { useNavigation } from '@react-navigation/native';
-
-interface NavigationProps {
-    navigate: (screen: string) => void;
-}
 
 export function SplashScreen() {
-    const navigation = useNavigation<NavigationProps>();
+    const navigation = useNavigation();
     const animationValue = useSharedValue(0);
 
     function startApp() {

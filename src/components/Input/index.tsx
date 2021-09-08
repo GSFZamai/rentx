@@ -11,7 +11,7 @@ import {
 
 interface InputProps extends TextInputProps {
     iconName: React.ComponentProps<typeof Feather>['name'];
-    value: string;
+    value?: string;
 }
 
 export function Input({
@@ -34,8 +34,8 @@ export function Input({
     };
 
     return (
-        <Container isActive={isActive}>
-            <IconContainer>
+        <Container >
+            <IconContainer isActive={isActive}>
                 <Feather
                     name={iconName}
                     size={24}
@@ -44,7 +44,7 @@ export function Input({
             </IconContainer>
 
             <StyledInput
-
+                isActive={isActive}
                 {...rest}
                 onFocus={handleOnFocus}
                 onBlur={handleOnBlur}

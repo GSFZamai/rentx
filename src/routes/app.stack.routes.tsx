@@ -1,36 +1,21 @@
 import React from 'react';
-import { createStackNavigator, StackScreenProps } from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import { Home } from '../screens/Home';
 import { CarDetails } from '../screens/CarDetails';
 import { Scheduling } from '../screens/Scheduling';
 import { SchedulingDetails } from '../screens/SchedulingDetails';
-import { SchedulingConfirmation } from '../screens/SchedulingConfirmation';
+import { Confirmation } from '../screens/Confirmation';
 import { MyCars } from '../screens/MyCars';
-import { SplashScreen } from '../screens/SplashScreen';
-import { SignIn } from '../screens/SignIn';
 
 const { Screen, Navigator } = createStackNavigator();
 
-export function StackRoutes() {
+export function AppStackRoutes() {
     return (
-        <Navigator screenOptions={{headerShown: false}}>
-            <Screen 
-                name="SplashScreen"
-                component={SplashScreen}
-            />
-            
-            <Screen 
-                name="SignIn"
-                component={SignIn}
-            />
-
+        <Navigator screenOptions={{headerShown: false}} initialRouteName='Home'>            
             <Screen
                 name="Home"
                 component={Home}
-                options={{
-                    gestureEnabled: false
-                }}
             />
 
             <Screen
@@ -49,8 +34,8 @@ export function StackRoutes() {
             />
 
             <Screen
-                name="SchedulingConfirmation"
-                component={SchedulingConfirmation}
+                name="Confirmation"
+                component={Confirmation}
             />
 
             <Screen
